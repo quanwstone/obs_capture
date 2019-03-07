@@ -75,8 +75,6 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IntDir>$(Configuration)\</IntDir>
-    <OutDir>..\Debug\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -94,11 +92,11 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_WINDOWS;DEBUG=1;_DEBUG=1;_DEBUG;DL_OPENGL="libobs-opengl.dll";DL_D3D9="";DL_D3D11="libobs-d3d11.dll";UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;HAVE_OBSCONFIG_H;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\include\libobs;..\include\config</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\quanwei\Project_Test\Test\Capture_PP\obs\include\config;C:\quanwei\Project_Test\Test\Capture_PP\obs\include\libobs</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <AdditionalLibraryDirectories>..\lib\win32_debug\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\quanwei\Project_Test\Test\Capture_PP\obs\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>obs.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Midl>

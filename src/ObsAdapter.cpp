@@ -6,6 +6,11 @@ CObsAdapter::CObsAdapter()
 {
 	m_pobs_source_t = nullptr;
 	m_pobs_scene_t = nullptr;
+	m_pobs_scene_item = nullptr;
+	m_pobs_data_t = nullptr;
+	m_bCursorShow = true;
+
+	m_iWindowCount = 0;
 
 	m_pchBmp = new unsigned char[1920*1080*4];
 	memset(m_pchBmp,0,1920*1080*4);
@@ -15,15 +20,6 @@ CObsAdapter::CObsAdapter()
 CObsAdapter::~CObsAdapter()
 {
 }
-void AddSource(void *_data, obs_scene_t *scene)
-{
-	AddSourceData *data = (AddSourceData *)_data;
-	obs_sceneitem_t *sceneitem;
-
-	sceneitem = obs_scene_add(scene, data->source);
-	obs_sceneitem_set_visible(sceneitem, data->visible);
-}
-
 
 bool CObsAdapter::Obs_enum_groups_cb(void *data, obs_source_t *source)
 {
@@ -61,9 +57,9 @@ void CObsAdapter::OnRawVideoCB(void *param, video_data *pframe)
 {
 	CObsAdapter *pThis = (CObsAdapter *)param;
 
-	//pThis->SaveVideoDataToBmp(pframe->data[0], pframe->linesize[0]);
+	pThis->save_video_data_conv_bmp_internal(pframe->data[0], pframe->linesize[0]);
 }
-void CObsAdapter::SaveVideoDataToBmp(uint8_t *data, uint32_t linesize)
+void CObsAdapter::save_video_data_conv_bmp_internal(uint8_t *data, uint32_t linesize)
 {
 	unsigned char *pT = m_pchBmp;
 
@@ -141,7 +137,7 @@ int CObsAdapter::Obs_reset_video(HWND hwnd)
 	m_obs_video_info.gpu_conversion = true;
 	m_obs_video_info.output_format = VIDEO_FORMAT_RGBA;
 	m_obs_video_info.output_width = 1920;
-	m_obs_video_info.output_height = 1080;
+	m_obs_video_info.output_height =  1080;
 
 	int i = obs_reset_video(&m_obs_video_info);
 	
@@ -177,14 +173,20 @@ bool CObsAdapter::Obs_create_scene(char *Id)
 		throw "obs_scene_create failed.";
 	}
 
-	obs_sceneitem_t *item = NULL;
 	struct vec2 scale;
 
 	vec2_set(&scale, 1.0f, 1.0f);
 
-	item = obs_scene_add(m_pobs_scene_t,m_pobs_source_t);
+	m_pobs_scene_item = obs_scene_add(m_pobs_scene_t,m_pobs_source_t);
 
-	obs_sceneitem_set_scale(item, &scale);
+	obs_sceneitem_set_scale(m_pobs_scene_item, &scale);
+
+	return true;
+}
+
+bool CObsAdapter::Obs_stop_capture()
+{
+	obs_sceneitem_remove(m_pobs_scene_item);
 
 	return true;
 }
@@ -216,4 +218,80 @@ bool CObsAdapter::Obs_add_raw_video_callback()
 void CObsAdapter::Obs_picture_start(char *path)
 {
 
+}
+
+bool CObsAdapter::Obs_set_cursor_show(bool bSet)
+{
+
+	return true;
+}
+
+void CObsAdapter::save_window_properties_internal(obs_property_t *in_property, STU_PROPERTIES &out_stuproperties)
+{
+	size_t count = obs_property_list_item_count(in_property);
+
+	obs_combo_format format = obs_property_list_format(in_property);
+
+	const char *ch = obs_property_description(in_property);
+
+	for (size_t i = 0; i < count; i++)
+	{
+		if (format == OBS_COMBO_FORMAT_STRING)
+		{
+			strcpy(out_stuproperties.chBuf[m_iWindowCount], obs_property_list_item_string(in_property, i));
+
+			m_iWindowCount++;
+		}
+	}
+}
+bool CObsAdapter::Obs_get_window_properties(STU_PROPERTIES &out_stuproperties)
+{
+	m_pobs_data_t = obs_source_get_settings(m_pobs_source_t);
+	if (!m_pobs_data_t)
+	{
+		throw "obs_source_get_settings failed.";
+	}
+
+	obs_properties_t *pobs_properties_t = nullptr;
+
+	pobs_properties_t = obs_source_properties(m_pobs_source_t);
+
+	obs_property_t *property = obs_properties_first(pobs_properties_t);
+
+	while (property)
+	{
+		const char *name = obs_property_name(property);
+
+		if (strcmp("window", name) == 0)
+		{
+			save_window_properties_internal(property,out_stuproperties);
+
+		}
+		else if (strcmp("priority", name) == 0)
+		{
+
+		}
+		else if (strcmp("cursor", name) == 0)
+		{
+
+		}
+		else if (strcmp("compatibility", name) == 0)
+		{
+
+		}
+		else
+		{
+
+		}
+		obs_property_next(&property);
+	}
+	
+	return true;
+}
+
+void CObsAdapter::Obs_window_capture_defer(const char *in_str)
+{
+	obs_data_set_string(m_pobs_data_t, "window", in_str);
+
+	obs_source_update(m_pobs_source_t, m_pobs_data_t);
 }

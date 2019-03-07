@@ -190,6 +190,53 @@ void COBS_DemoDlg::monitor_capture()
 	}
 }
 
+void COBS_DemoDlg::handle_capture()
+{
+	if (!m_oadapter.Obs_startup("en-US", nullptr))
+	{
+		throw "Obs_startup failed.";
+	}
+
+	m_oadapter.Obs_load_all_modules();
+
+	if (!m_oadapter.Obs_reset_video(GetDlgItem(IDC_STATIC)->m_hWnd))
+	{
+		throw "Obs_reset_video failed.";
+	}
+	if (!m_oadapter.Obs_create_source("window_capture"))
+	{
+		throw "Obs_create_source failed";
+	}
+	if (!m_oadapter.Obs_create_scene("test scene"))
+	{
+		throw "Obs_create_scene failed.";
+	}
+
+	if (!m_oadapter.Obs_add_raw_video_callback())
+	{
+		throw "Obs_add_raw_video_callback failed.";
+	}
+
+	if (!m_oadapter.Obs_start_capture())
+	{
+		throw "Obs_start_capture failed.";
+	}
+
+	STU_PROPERTIES stu;
+	stu.chBuf = new char *[BUFSIZ];
+	for (int i =0;i< BUFSIZ ;i++)
+	{
+		stu.chBuf[i] = new char[BUFSIZ];
+		memset(stu.chBuf[i],0,BUFSIZ);
+	}
+	
+	if (m_oadapter.Obs_get_window_properties(stu))
+	{
+
+	}
+	m_oadapter.Obs_window_capture_defer(stu.chBuf[0]);
+}
+
 //monitor capture start
 void COBS_DemoDlg::OnBnClickedButton1()
 {
@@ -201,11 +248,12 @@ void COBS_DemoDlg::OnBnClickedButton1()
 void COBS_DemoDlg::OnBnClickedButton2()
 {
 	// TODO: 在此添加控件通知处理程序代码
-
+	
 }
 
 //handle capture start
 void COBS_DemoDlg::OnBnClickedButton3()
 {
 	// TODO: 在此添加控件通知处理程序代码
+	handle_capture();
 }

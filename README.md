@@ -46,3 +46,42 @@ output_frame:读取采集的数据放入队列并通过信号量通知vide_threa
 通过Display的回调进行绘制显示(obs_render_main_texture),为了实现画面的缩放需要通过gs_ortho进行.然后
 调用gs_set_viewport进行设置.
 
+
+第二阶段实现：
+实现window -capture功能.
+流程：
+
+(1)obs初始化和创建source以及sence的创建和连接都没有区别，唯一的区别是source需要时window-capture插件.
+(2)通过obs_source_properties来获取window-caputre内部实现的窗口句柄列表和一些信息，
+该步骤主要会带有四种类型的信息，window，cursor，priority，compatibility，
+window：对应窗口的句柄等信息.
+cursor：对应是否鼠标显示
+priority：优先级选择
+compatibility：兼容性.
+目前只是保存了window的信息，
+(3)把保存的window信息，通过obs_data_set_string进行设置，用于修改source对应的setting内容
+(4)obs_source_update，内部通过修改临时变量用于更新 window-capture内部的window对象.
+
+问题难点：对于properties内容的理解.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

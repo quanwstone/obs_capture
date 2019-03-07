@@ -37,6 +37,9 @@ public:
 	CObsAdapter m_oadapter;
 
 	void monitor_capture();
+
+	void handle_capture();
+
 	afx_msg void OnBnClickedButton1();
 	afx_msg void OnBnClickedButton2();
 	afx_msg void OnBnClickedButton3();
